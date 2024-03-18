@@ -1,0 +1,94 @@
+<launch>    
+    
+    <!-- 是否使用gazebo仿真 -->
+    <arg name="use_sim" default="true"/>
+
+    <!-- 选择要用的lio算法 pure_lio:纯使用lio算法 不加上全局点云地图的重定位 -->
+    <arg name="lio_type"    default="pure_lio" doc="model type [fast_lio, point_lio, dlio, pure_lio ...]" />
+
+    <!-- game_type=RMUL 选择联盟赛地图 game_type=RMUC 选择对抗赛地图 game_type=normal_type 平时测试  sim:仿真-->
+    <arg name="game_type"   default="RMUL" doc="model type [RMUL, RMCU, normal_type, sim ...]" />
+
+
+    <include file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch">
+      <arg name="xfer_format" default="1"/>  				
+      <!--xfer_format（数据传输格式） 1:LivoxCustomMsg 0:kPointCloud2Msg-->
+    </include>
+
+    <!--fast-lio算法-->
+		<include file="$(find fast_lio)/launch/mapping_mid360.launch" if="$(eval arg('lio_type')=='fast_lio')">
+          <arg name="pcd_save/pcd_save_en" value="0"/>
+    </include> 
+
+    <!--point-lio算法-->
+    <include file="$(find point_lio)/launch/mapping_avia.launch" if="$(eval arg('lio_type')=='point_lio')">
+    </include> 
+    
+    <!--dlio算法 需要PointCloud2类型的数据 livox驱动的数据类型需要修改为0-->
+    <include file="$(find direct_lidar_inertial_odometry)/launch/dlio.launch" if="$(eval arg('lio_type')=='dlio')">
+    </include> 
+    
+    <arg name="map_file" default="map.yaml"/> 
+	  <node name="map_server" pkg="map_server" type="map_server"  args="$(find rm_bringup)/map/$(arg game_type).yaml" />
+    
+    <!-- pointcloud_to_laserscan 点云数据给到代价地图进行更新、避障 -->
+    <include file="$(find pointcloud_to_laserscan)/launch/sample_node.launch"/> 
+
+    <!-- <include file="$(find hdl_localization)/launch/hdl_localization.launch" >
+        <arg name="points_topic" value="/cloud_registered"/>
+        <arg name="points_topic" default="/robot/dlio/odom_node/pointcloud/deskewed"/>
+    </include> -->
+
+    <!-- <include file="$(find linefit_ground_segmentation_ros)/launch/segmentation.launch"/> -->
+
+
+    <!--Launch the move base with time elastic band-->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <rosparam file="$(find rm_bringup)/config/params/costmap_common_params.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(find rm_bringup)/config/params/costmap_common_params.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(find rm_bringup)/config/params/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(find rm_bringup)/config/params/global_costmap_params.yaml" command="load" />
+      
+      <param name="base_global_planner" value="global_planner/GlobalPlanner" />
+      <!--<param name="neutral_cost" value="220" />-->
+      <param name="planner_frequency" value="3.0" />
+      <param name="planner_patience" value="5.0" />
+      <!-- 默认为A*算法 -->
+      <param name="use_dijkstra" value="false" />
+      
+      <!-- <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+      <param name="controller_frequency" value="20.0" />
+      <param name="controller_patience" value="15.0" /> -->
+      <!-- <param name="base_local_planner" value="mpc_planner/MPCPlanner" if="$(eval arg('local_planner')=='mpc')" />
+          <rosparam file="$(find rm_bringup)/config/params/mpc_planner_params.yaml" command="load" if="$(eval arg('local_planner')=='mpc')" /> -->
+
+
+      <param name="clearing_rotation_allowed" value="false" />
+      <remap from="/cmd_vel" to="/" />
+    </node>
+
+    <include file="$(find rm_local_planner)/launch/control_base.launch">
+            <param name="controller_type_" value="mpc"/>
+    </include> 
+
+    <!--启动底盘驱动-->
+    <!-- <include file="$(find qd_driver)/launch/qd_driver.launch" />	 -->
+   
+    <!--发布dlio的/robot/Odometry到Odometry静态tf 使用dlio要加-->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="robotOdometry_to_Odometry" args="0 0 0 0 0 0 /robot/Odometry Odometry 20"/> -->
+
+    <!--发布dlio的/robot/base_footprint到base_footprint静态tf 使用dlio要加-->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="robotbase_footprint_to_base_footprint" args="0 0 0 0 0 0 /robot/base_footprint base_footprint 20"/> -->
+   
+    <!--下面是默认map与Odometry重合 如果用了定位算法后要注释掉-->
+    <node pkg="tf" type="static_transform_publisher" name="map_to_Odometry" args="0 0 0 0 0 0 map Odometry 20" if="$(eval arg('lio_type')=='pure_lio') "/>
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="base_foot_print_to_laser" args="0.05 0.15 0.5 0 0 0 base_footprint laser 20" /> -->
+
+    <node pkg="tf" type="static_transform_publisher" name="aft_mapped_to_base_footprint" args="0 0 0 0 0 0 aft_mapped base_footprint 20" if="$(eval arg('lio_type')=='point_lio')"/>
+             
+    <node pkg="tf" type="static_transform_publisher" name="camera_init_to_Odometry" args="0 0 0 0 0 0 camera_init Odometry 20" if="$(eval arg('lio_type')=='point_lio')"/>
+         
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rm_bringup)/config/rviz/rm_local_planner.rviz" required="true" />
+
+</launch>

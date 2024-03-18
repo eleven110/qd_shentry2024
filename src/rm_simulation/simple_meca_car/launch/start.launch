@@ -1,0 +1,23 @@
+<launch>   
+    <!-- 载入URDF -->
+    <param name="robot_description" command="$(find xacro)/xacro $(find simple_meca_car)/urdf/waking_robot.xacro" />
+    
+    <!-- 启动SLAM节点 -->
+    <include file="$(find simple_meca_car)/launch/gmapping.launch" />
+    <!-- 运行move_base节点 -->
+    <!-- <include file="$(find simple_meca_car)/launch/movebase.launch" /> -->
+    <!-- 设置地图的配置文件 -->
+    <!-- <arg name="map" default="nav.yaml" /> -->
+    <!-- 运行地图服务器，并且加载设置的地图-->
+    <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find simple_meca_car)/map/$(arg map)"/> -->
+    <!-- 运行amcl节点 -->
+    <include file="$(find simple_meca_car)/launch/amcl.launch" />
+
+ 
+    <!-- 启动rviz -->
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" />
+
+    <node pkg="rviz" type="rviz" name="rviz" />
+
+</launch>

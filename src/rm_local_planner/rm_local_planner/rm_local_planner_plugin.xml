@@ -1,0 +1,8 @@
+<library path="lib/librm_local_planner">
+    <class name="rm_local_planner/control_base" type="rm_local_planner::control_base"
+        base_class_type="nav_core::BaseLocalPlanner">
+        <description>
+            A implementation of a local model predicted control (MPC) planner.
+        </description>
+    </class>
+</library>

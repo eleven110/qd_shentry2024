@@ -1,0 +1,36 @@
+<launch>
+    <arg name="controller_type" default="mpc" />
+    <arg name="mpc_speed_value" default="5" />
+    <arg name="max_x_speed" default="2" />
+    <arg name="max_y_speed" default="2" />
+    <arg name="set_yaw_speed" default="0"/>
+    <arg name="p_value" default="1.5" />
+    <arg name="i_value" default="1.0"/>
+    <arg name="d_value" default="1.0"/>
+
+    <!-- Run the local trajectory planner -->
+    <node pkg="rm_local_planner" type="rm_local_planner_node" name="rm_local_planner_node" respawn="true" output="screen" >
+        <param name="global_frame" value="map"/>
+        <param name="plan_frequency" value="20"/>
+        <param name="max_x_speed" value="$(arg max_x_speed)"/>
+        <param name="max_y_speed" value="$(arg max_y_speed)"/>
+        <param name="set_yaw_speed" value="$(arg set_yaw_speed)"/>
+        <param name="goal_dist_tolerance" value="0.25"/>
+        <param name="prune_ahead_distance" value="0.4"/>
+        <!--选择局部规划算法  -->
+        <param name="controller_type" value="$(arg controller_type)"/>
+        <param name="mpc_speed_value" value="$(arg mpc_speed_value)"/>
+        
+        <!-- PID 参数调节 -->
+        <param name="p_value" value="1.5"/>
+        <param name="i_value" value="1.0"/>
+        <param name="d_value" value="1.0"/>
+        <!-- mpc预测步长 -->
+        <param name="N_steps" value="20"/>
+        <remap from="/base_vel" to="/cmd_vel" />
+        
+    </node>
+
+    
+
+</launch>

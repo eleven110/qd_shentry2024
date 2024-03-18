@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+
+<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+	<xacro:property name="length_wheel" value="0.05" />
+	<xacro:property name="radius_wheel" value="0.06" />
+	<xacro:property name="camera_link" value="0.05" /> 
+  <xacro:property name="PI" value="3.1415926"/>
+	<xacro:macro name="default_inertial" params="mass">
+               <inertial>
+                       <mass value="${mass}" />
+                       <inertia ixx="0.01" ixy="0.0" 
+                                ixz="0.0"
+                                iyy="0.01" iyz="0.0"
+                                izz="0.01" />
+               </inertial>
+	</xacro:macro>
+
+ <!-- IMU joint -->
+  <joint name="imu_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.125 0 0.125" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+  </joint>
+
+  <!-- IMU -->
+  <link name="imu_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+  <box size="0.05 0.05 0.05"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+  <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <material name="green">
+  <color rgba="0 1 0 1"/>
+      </material>
+    </visual>
+
+    <inertial>
+      <mass value="1e-2" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+
+     <!-- IMU -->
+
+  <!-- Camera joint -->
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.125 0 0.175" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+  </joint>
+
+  <!-- Camera -->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	        <box size="0.05 0.05 0.05"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	        <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <material name="red">
+	        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="1e-2" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+<gazebo>
+
+<plugin name="mecanum_controller" filename="libgazebo_ros_planar_move.so">
+ <alwaysOn>true</alwaysOn>
+    <updateRate>100.0</updateRate>
+    <robotNamespace>/</robotNamespace>
+<commandTopic>cmd_vel</commandTopic>
+<odometryTopic>odom</odometryTopic>
+<odometryFrame>odom</odometryFrame>
+<leftFrontJoint>base_to_wheel1</leftFrontJoint>
+<rightFrontJoint>base_to_wheel3</rightFrontJoint>
+<leftRearJoint>base_to_wheel2</leftRearJoint>
+<rightRearJoint>base_to_wheel4</rightRearJoint>
+<wheelSeparation>0.26</wheelSeparation>
+<wheelDiameter>0.12</wheelDiameter>
+<odometryRate>20.0</odometryRate>
+<torque>2</torque>
+<robotBaseFrame>base_footprint</robotBaseFrame>
+<publishOdomTF>true</publishOdomTF>
+<broadcastTF>true</broadcastTF>
+</plugin>
+</gazebo>
+
+
+<!-- imu控制 -->
+
+   <gazebo reference="imu_link">
+        <material>Gazebo/Orange</material>
+        <gravity>true</gravity>
+        <sensor name="imu_sensor" type="imu">
+            <always_on>true</always_on>
+            <update_rate>100</update_rate>
+            <visualize>true</visualize>
+            <topic>__default_topic__</topic>
+            <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <topicName>imu</topicName>
+                <bodyName>imu_link</bodyName>
+                <updateRateHZ>100.0</updateRateHZ>
+                <gaussianNoise>0.0</gaussianNoise>
+                <xyzOffset>0 0 0</xyzOffset>
+                <rpyOffset>0 0 0</rpyOffset>
+                <frameName>imu_link</frameName>
+            </plugin>
+            <pose>0 0 0 0 0 0</pose>
+        </sensor>
+    </gazebo>
+
+<!-- gazebo插件设置相关结束 -->
+
+</robot>

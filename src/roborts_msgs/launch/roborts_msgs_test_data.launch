@@ -1,0 +1,6 @@
+<launch>
+	<node pkg = "roborts_msgs" type = "roborts_msgs_test_data" name = "roborts_msgs_test_data" respawn="false" output="screen">
+
+    </node>
+	
+</launch>

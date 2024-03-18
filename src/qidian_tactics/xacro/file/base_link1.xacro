@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<robot name="omnidirectional_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <link name="base_footprint">
+        <visual>
+            <geometry>
+                <box size="0.001 0.001 0.001"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+        <xacro:default_inertial mass="0.0001"/>
+    </link>
+    <gazebo reference="base_footprint">
+        <material>Gazebo/Green</material>
+        <turnGravityOff>false</turnGravityOff>
+    </gazebo>
+    <joint name="base_footprint_joint" type="fixed">
+        <origin xyz="0 0 0" />
+        <parent link="base_footprint" />
+        <child link="base_link" />
+    </joint>
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="0.556 0.597 0.1"/>
+            </geometry>
+            <origin rpy="0 0 ${PI/2}" xyz="0 0 0.05"/>
+            <material name="white">
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.556 0.597 0.1"/>
+            </geometry>
+        </collision>
+        <xacro:default_inertial mass="8.2"/>
+    </link>
+    <!-- Omnidirectional Wheel Definitions -->
+    <xacro:macro name="omnidirectional_wheel" params="wheel_name wheel_position">
+        <link name="${wheel_name}">
+            <visual>
+                <geometry>
+                    <cylinder length="${length_wheel}" radius="${radius_wheel}"/>
+                </geometry>
+                <origin rpy="0 0 0" xyz="${wheel_position}"/>
+                <material name="black">
+                    <color rgba="0 0 0 1"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder length="${length_wheel}" radius="${radius_wheel}"/>
+                </geometry>
+            </collision>
+            <xacro:default_inertial mass="0.05"/>
+        </link>
+        <joint name="base_to_${wheel_name}" type="continuous">
+            <axis xyz="0 0 1" />
+            <limit effort="100" velocity="100" />
+            <parent link="base_link"/>
+            <child link="${wheel_name}"/>
+            <origin rpy="${-PI/2} 0 0" xyz="${wheel_position}"/>
+        </joint>
+    </xacro:macro>
+    <!-- Instantiate Omnidirectional Wheels -->
+    <xacro:omnidirectional_wheel wheel_name="wheel_1" wheel_position="0.3 0.24 0"/>
+    <xacro:omnidirectional_wheel wheel_name="wheel_2" wheel_position="-0.3 0.24 0"/>
+    <xacro:omnidirectional_wheel wheel_name="wheel_3" wheel_position="0.3 -0.24 0"/>
+    <xacro:omnidirectional_wheel wheel_name="wheel_4" wheel_position="-0.3 -0.24 0"/>
+    <!-- Gazebo Plugin Settings -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Orange</material>
+    </gazebo>
+    <gazebo reference="wheel_1">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <gazebo reference="wheel_2">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="wheel_3">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <gazebo reference="wheel_4">
+        <material>Gazebo/Black</material>
+    </gazebo>
+</robot>

@@ -1,0 +1,24 @@
+TebLocalPlannerROS:
+  base_local_planner: "teb_local_planner/TebLocalPlannerROS"
+  # 机器人配置
+  max_vel_x: 1
+  max_vel_x_backwards: 0.5
+  max_vel_theta: 3
+  acc_lim_x: 0.5
+  acc_lim_theta: 3
+
+  # 路径规划配置
+  global_plan_overwrite_orientation: true
+  allow_init_with_backwards_motion: true
+
+  # 障碍物和膨胀层
+  min_obstacle_dist: 0.5
+  inflation_dist: 0.6
+  costmap_converter_plugin: ""
+  costmap_converter_spin_thread: true
+
+  # 优化
+  no_inner_iterations: 5
+  no_outer_iterations: 4
+
+  # ... 更多参数

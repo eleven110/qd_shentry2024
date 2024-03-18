@@ -1,0 +1,27 @@
+<launch>
+    <arg name = "shaobing_port" default = "/dev/ttyUSB0"/>
+    <arg name = "shaobing_port_baud" default = "115200" />
+
+    <arg name = "base_frame" default = "base_footprint"/>
+    <arg name = "odom_frame" default = "Odometry"/>
+    <arg name = "imu_frame" default = "imu_link"/>
+
+    <arg name = "odom_topic" default = "Odometry"/>
+    <arg name = "imu_topic" default = "livox/imu"/>
+    <arg name = "cmd_vel_topic" default = "cmd_vel"/>
+    <arg name = "referee_topic" default = "referee"/><!--裁判系统-->
+
+    <arg name = "pub_odom_tf" default = "false" />
+
+    <node name = "qd_driver" pkg = "qd_driver" type = "qd_driver" output = "screen" respawn = "false">
+        <param name = "shaobing_port" value = "$(arg shaobing_port)"/>
+        <param name = "shaobing_port_baud" value = "$(arg shaobing_port_baud)"/>
+
+        <param name = "base_frame" value = "$(arg base_frame)"/>
+
+        <param name = "cmd_vel_topic" value = "$(arg cmd_vel_topic)"/>
+        <param name = "referee_topic" value = "$(arg referee_topic)"/><!--裁判系统-->
+        <param name = "pub_odom_tf" value = "$(arg pub_odom_tf)"/>
+    </node>
+
+</launch>

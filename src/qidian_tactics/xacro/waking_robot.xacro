@@ -1,0 +1,5 @@
+<robot name="waking_robot" xmlns:xacro="http://wiki.ros.org/xacro">
+    <xacro:include filename="file/main.xacro" />
+    <xacro:include filename="file/base_link.xacro" />
+    <xacro:include filename="file/camera_laser.xacro" />
+</robot>

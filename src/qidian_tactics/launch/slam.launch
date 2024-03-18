@@ -1,0 +1,19 @@
+<launch>
+    <!-- 将深度信息模拟成雷达信息 -->
+    <!-- <include file="$(find qidian_tactics)/launch/depthimage_to_laserscan.launch" />  -->
+    <!-- 由于精度和检测范围的原因，尤其再加之环境的特征点偏少，建图效果并不理想，建图中甚至会出现地图偏移的情况。 -->
+
+    <!-- 启动SLAM节点 -->
+    <include file="$(find qidian_tactics)/launch/file/gmapping.launch" />
+
+    <!-- 运行move_base节点 -->
+    <include file="$(find qidian_tactics)/launch/file/nav_path.launch" />
+    
+    <!-- 运行rviz -->
+    <node pkg = "rviz" type ="rviz" name="rviz" args="-d $(find qidian_tactics)/config/slam.rviz"/>
+
+    <node pkg = "joint_state_publisher" type = "joint_state_publisher"  name= "joint_state_publisher" />
+
+    <node pkg = "robot_state_publisher" type = "robot_state_publisher"  name= "robot_state_publisher" />
+
+</launch>

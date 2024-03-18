@@ -1,0 +1,18 @@
+<launch>
+    <!-- 将小车文件的内容加载到参数服务器 -->
+    <param name="robot_description" command="$(find xacro)/xacro $(find qidian_tactics)/xacro/robot.xacro" />
+    <!-- 启动 gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" >
+        <arg name="world_name" value="$(find qidian_tactics)/gazebo_world/000.world" />
+    </include>
+    
+
+    <!-- 生成小车 -->
+    <node pkg="gazebo_ros" type="spawn_model" name="model" args="-urdf -model robot  -param robot_description "  />
+    <!-- -x 6.721726 -y 1.151840 -z 1.159720 -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_transform_publisher" args="0 0 0 -1.57 0 -1.57 /sensor /sensor2" />
+
+    <node pkg = "joint_state_publisher" type = "joint_state_publisher"  name= "joint_state_publisher" />
+
+    <node pkg = "robot_state_publisher" type = "robot_state_publisher"  name= "robot_state_publisher" />
+</launch>

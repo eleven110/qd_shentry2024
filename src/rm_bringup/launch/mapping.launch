@@ -1,0 +1,47 @@
+<launch>    
+    <!-- 要转换哪个lio算法出来的pcd地图。 -->
+    <arg name="type_pcd"   default="point_lio" doc="model type [fast_lio, point_lio, ...]" />
+    <arg name="file_name"  default="scans" />
+    <!-- 3D地图转2D地图名字 -->
+    <arg name="map_file" default="map_point_lio.yaml"/> 
+
+    <!--xfer_format（数据传输格式） 1:LivoxCustomMsg 0:kPointCloud2Msg-->
+    <!-- <include file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch">
+    <arg name="xfer_format" default="1"/>  				
+    </include> -->
+
+    <!-- fast-lio算法 -->
+		<!-- <include file="$(find fast_lio)/launch/mapping_mid360.launch">
+    </include> -->
+
+    <!--point-lio算法-->
+    <!-- <include file="$(find point_lio)/launch/mapping_avia.launch">
+    </include>  -->
+    	
+
+    <!--dlio算法 需要PointCloud2类型的数据 livox驱动的数据类型需要修改为0-->
+    <!-- <include file="$(find direct_lidar_inertial_odometry)/launch/dlio.launch"/> -->
+
+	  <include file="$(find pcd2pgm)/launch/run.launch" >
+        <arg name="type_pcd"    value="$(arg type_pcd)" />
+        <arg name="file_name"   value="$(arg file_name)" />
+    </include> 
+
+    <!-- <include file="$(find linefit_ground_segmentation_ros)/launch/segmentation.launch"/> -->
+    
+
+	 <node name="map_server" pkg="map_server" type="map_server"  args="$(find rm_bringup)/map/$(arg map_file)" />
+    
+    <!-- <include file="$(find pointcloud_to_laserscan)/launch/sample_node.launch"/>  -->
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="robotOdometry_to_Odometry" args="0 0 0 0 0 0 /robot/Odometry Odometry 20"/>
+    
+    <node pkg="tf" type="static_transform_publisher" name="robotbase_footprint_to_base_footprint" args="0 0 0 0 0 0 /robot/base_footprint base_footprint 20"/> -->
+
+    <!--启动底盘驱动-->
+    <include file="$(find rm_bringup)/launch/qd_driver.launch" />	
+  
+   <!-- </include> -->
+
+
+</launch>
